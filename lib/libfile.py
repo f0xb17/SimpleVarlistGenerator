@@ -32,7 +32,7 @@ class LibFile:
                     self._foldercontents.append(path.join(root, file))
 
     def _findduplicates(self, lst):
-        uniques = set()
+        uniques = list(set(lst))
 
         for item in uniques:
             self._libclean.collector(item)
