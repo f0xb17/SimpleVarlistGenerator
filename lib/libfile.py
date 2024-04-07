@@ -10,6 +10,8 @@ class LibFile:
     _option = ""
     _directory = ""
     _foldercontents = []
+    _passes = 0
+    _total = 0
 
     _libvar = LibVar()
     _libstring = LibString()
@@ -32,10 +34,21 @@ class LibFile:
                     self._foldercontents.append(path.join(root, file))
 
     def _findduplicates(self, lst):
-        uniques = list(set(lst))
+        duplicates = set()
+        uniques = set()
 
-        for item in uniques:
-            self._libclean.collector(item)
+        i = 0
+        self._passes = 0
+
+        for item in lst:
+            if item in uniques:
+                duplicates.add(item)
+            elif item not in self._libclean.getcollection() and item != "refresh_strings":
+                self._libclean.collector(item)
+                uniques.add(item)
+                i += 1
+        self._total += i
+        self._passes = i
         return uniques
 
     def processfile(self, file):
@@ -49,7 +62,8 @@ class LibFile:
         if self._option == "varlist":
             return self._libclean.removeduplicates(list(self._findduplicates(self._libvar.extractvarname(filecontent))))
         elif self._option == "stringvarlist":
-            return list(self._findduplicates(self._libstring.extractstringname(filecontent)))
+            return self._libclean.removeduplicates(
+                list(self._findduplicates(self._libstring.extractstringname(filecontent))))
 
     def _modifyfilename(self, file):
         if self._option == "varlist":
@@ -60,12 +74,17 @@ class LibFile:
     def writeoutput(self, file):
         i = 0
         with open(self._modifyfilename(file), 'w') as o:
+
             for content in self.processfile(file):
                 o.write(content)
-                if (i + 1) < len(self.processfile(file)):
+                if (i + 1) < self._passes:
                     o.write("\n")
                 i += 1
+        print("Amount of processed variables in file: " + str(self._passes))
         o.close()
 
     def getdirectorycontents(self):
         return self._foldercontents
+
+    def gettotalval(self):
+        return self._total
