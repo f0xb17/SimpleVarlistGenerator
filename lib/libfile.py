@@ -75,7 +75,7 @@ class LibFile:
         i = 0
         with open(self._modifyfilename(file), 'w') as o:
 
-            for content in self.processfile(file):
+            for content in sorted(self.processfile(file)):
                 o.write(content)
                 if (i + 1) < self._passes:
                     o.write("\n")
