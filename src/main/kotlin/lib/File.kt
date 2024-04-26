@@ -8,5 +8,26 @@
 
 package org.foxbit.lib
 
+import java.io.File
+
+/**
+ * This class provides all possible functions to automatically generate a varlist or stringvarlist.
+ * @param [dir] The file path that contains the .osc files.
+ * @param [option] 1 = varlist / 2 = stringvarlist
+ */
 class File(private val dir: String, private val option: Int) {
+
+    /**
+     * This method is used to find all files with the extension .osc at the specified storage point
+     * and save them in a list.
+     * @return a List of Strings, which contains all files with the ending .osc in a specific folder.
+     */
+    private fun findFilesInFolder(): List<String> {
+        val files = File(this.dir).walk()
+            .filter { it.isFile && it.name.endsWith(".osc") }
+                .toList()
+                    .map { it.absolutePath }
+        return files
+    }
+
 }

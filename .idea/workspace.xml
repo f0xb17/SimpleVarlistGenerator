@@ -35,6 +35,10 @@
     "SHARE_PROJECT_CONFIGURATION_FILES": "true",
     "git-widget-placeholder": "kotlin",
     "kotlin-language-version-configured": "true",
+    "node.js.detected.package.eslint": "true",
+    "node.js.detected.package.tslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "node.js.selected.package.tslint": "(autodetect)",
     "nodejs_package_manager_path": "npm",
     "project.structure.last.edited": "Modules",
     "project.structure.proportion": "0.0",
@@ -60,7 +64,7 @@
       <option name="presentableId" value="Default" />
       <updated>1714042922053</updated>
       <workItem from="1714042923077" duration="46000" />
-      <workItem from="1714118158798" duration="296000" />
+      <workItem from="1714118158798" duration="498000" />
     </task>
     <servers />
   </component>
