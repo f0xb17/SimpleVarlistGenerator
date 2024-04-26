@@ -77,4 +77,24 @@ class File(private val dir: String, private val option: Int) {
             }
         }
     }
+
+    /**
+     * This method writes the content from @link[extractVariables] to the file converted by @link[convertToVarList].
+     */
+    fun writer() {
+        for(file in this.findFilesInFolder(".osc")) {
+            val contents: List<String> = this.extractVariables(this.readFileAsLines(file))
+            try {
+                File(this.convertToVarList(file)).bufferedWriter().use { writer ->
+                    for((index, value) in contents.withIndex()) {
+                        writer.write(value)
+                        if((contents.size - 1) > index)
+                            writer.newLine()
+                    }
+                }
+            } catch(e: Exception) {
+                println("Exception while writing the file: $e")
+            }
+        }
+    }
 }
