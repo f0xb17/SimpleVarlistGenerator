@@ -31,4 +31,13 @@ class File(private val dir: String, private val option: Int) {
         return files
     }
 
+    /**
+     * This method is used to save the content of an .osc file into a searchable list of strings.
+     * @param [filePath] Represents a file at the specified file path.
+     * @return a List of Strings, which contains every line of @link[filePath]
+     */
+    private fun readFileAsLines(filePath: String): List<String> {
+        return File(filePath).readLines().map { it.lowercase() }
+    }
+
 }
