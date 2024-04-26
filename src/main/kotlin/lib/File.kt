@@ -61,4 +61,20 @@ class File(private val dir: String, private val option: Int) {
             }
         }
     }
+
+    /**
+     * This method converts the name of an .osc file into the corresponding varlist or stringvarlist
+     * by replacing .osc with _varlist.txt or _stringvarlist.txt
+     * @param [filePath] Represents an .osc file at a specific file path.
+     * @return a converted file that takes the name from @link[filePath] and replaces the file ending with _varlist.txt or _stringvarlist.txt
+     */
+    private fun convertToVarList(filePath: String): String {
+        return when(this.option) {
+            1 -> File(File(filePath).parent, File(filePath).nameWithoutExtension + "_varlist.txt").absolutePath
+            2 -> File(File(filePath).parent, File(filePath).nameWithoutExtension + "_stringvarlist.txt").absolutePath
+            else -> {
+                throw IOException()
+            }
+        }
+    }
 }
