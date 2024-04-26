@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/.idea/SimpleVarlistGenerator.iml" filepath="$PROJECT_DIR$/.idea/SimpleVarlistGenerator.iml" />
+      <module fileurl="file://$PROJECT_DIR$/SimpleVarlistGenerator.iml" filepath="$PROJECT_DIR$/SimpleVarlistGenerator.iml" />
     </modules>
   </component>
 </project>
