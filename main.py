@@ -1,4 +1,8 @@
 import re
+
+varlist = []
+stringvarlist = []
+
 def convert_variable(variable):
     """
     Takes a variable name and returns the name without any unnecessary characters.
@@ -11,11 +15,11 @@ def convert_variable(variable):
         return match.group(2)
     raise ValueError(f"Invalid variable: {variable}")
 
-def create_list(variable_list):
+def clean_list(variable_list):
   """
   Takes a list of variable names and returns a new list with all duplicates
   removed. The list is cleaned of unnecessary characters by passing each
-  variable through the convertVariable function.
+  variable through the convert_variable function.
   """
   cleaned_list = []
   for variable in variable_list:
@@ -23,11 +27,11 @@ def create_list(variable_list):
     if variable not in cleaned_list:
       cleaned_list.append(variable)
   return cleaned_list
-  
+
 def main():
   variabe_list_in = ["(L.L.variable)", "(L.L.variable1)", "(L.L.variable2)", "(L.L.variable3)", "(L.L.variable4)", "(L.L.variable3)"]
   variable_list = ["a", "b", "c", "d", "e", "f", "g", "h", "a", "b", "d", "e"]
-  print(create_list(variabe_list_in))
+  print(clean_list(variabe_list_in))
 
 if __name__ == "__main__":
   main()
