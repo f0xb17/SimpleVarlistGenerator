@@ -1,17 +1,23 @@
 package main
 
 import (
+	"bufio"
 	"errors"
 	"fmt"
+	"os"
 	"regexp"
 	"strings"
 )
 
-// convertVariable takes a variable name and returns the part of the name after the <L.L.> or <L.$.>.
+func getPattern() string {
+	return `\([LS]\.[L$]\.([a-zA-Z0-9_]+)\)`
+}
+
+// convertVariable takes a variable name and returns the part of the name after the <L.L.> or <L.$.> and <S.L.> or <S.$.>.
 // part. It is used to extract the "real" variable name.
 func convertVariable(varName string) string {
-	match := regexp.MustCompile(`\(L\.([L$])\.([a-zA-Z0-9_]+)\)`).FindStringSubmatch(varName)
-	return match[2]
+	match := regexp.MustCompile(getPattern()).FindStringSubmatch(varName)
+	return match[1]
 }
 
 // cleanSlice removes duplicate variable names from the input slice by extracting
@@ -34,8 +40,8 @@ func cleanSlice(varSlice []string) []string {
 }
 
 // createSlices takes a slice of strings and splits it into two slices. The first slice contains
-// all the strings that contained <L.$.> (Stringvars) and the second slice contains all the strings that
-// contained <L.L.> (Vars). The function returns the two slices as well as an error if the input slice
+// all the strings that contained <L.$.> and <S.$.> (Stringvars) and the second slice contains all the strings that
+// contained <L.L.> and <S.L.> (Vars). The function returns the two slices as well as an error if the input slice
 // is empty or the string contains no letters.
 func createSlices(varSlice []string) ([]string, []string, error) {
 	stringvarlist := []string{}
@@ -58,23 +64,53 @@ func createSlices(varSlice []string) ([]string, []string, error) {
 
 	}
 
-	return cleanSlice(stringvarlist), cleanSlice(varlist), nil
+	return cleanSlice(varlist), cleanSlice(stringvarlist), nil
+}
+
+// readFile takes a file path and reads the file line by line. It uses a regular expression to extract
+// all the strings that contain <L.L.> or <L.$.> and <S.L.> or <S.$.> and returns them in a slice. If the function encounters
+// an error while reading the file, it will return an empty slice and an error.
+func readFile(filePath string) ([]string, error) {
+	file, err := os.Open(filePath)
+	if err != nil {
+		return nil, errors.New("something went wrong")
+	}
+	variables := []string{}
+	scanner := bufio.NewScanner(file)
+
+	for scanner.Scan() {
+		line := scanner.Text()
+		matches := regexp.MustCompile(getPattern()).FindAllStringSubmatch(line, -1)
+		for _, match := range matches {
+			if len(match) > 1 {
+				variables = append(variables, match[0])
+			}
+		}
+	}
+
+	return variables, nil
 }
 
 func main() {
-	testSlice := []string{"(L.$.DasIstEineSehrLangeTestVariable)", "(L.L.DasIstEineSehrLangeTestVariable2)", "(L.$.DasIstEineSehrLangeTestVariable3)", "(L.L.DasIstEineSehrLangeTestVariable4)", "(L.L.DasIstEineSehrLangeTestVariable2)", "(L.L.DasIstEineSehrLangeTestVariable3)", "(L.L.DasIstEineSehrLangeTestVariable4)"}
-	newSlice, newSlice2, err := createSlices(testSlice)
+	slice, err := readFile("./MAN_SG_Dash.osc")
+
 	if err != nil {
-		fmt.Println("Error: ", err)
+		fmt.Println(err)
 	}
 
-	fmt.Println("Varlist:")
-	for _, x := range newSlice2 {
-		fmt.Println(x)
+	variables, stringvariables, err := createSlices(slice)
+
+	if err != nil {
+		fmt.Println(err)
 	}
 
-	fmt.Println("Stringvarlist:")
-	for _, x := range newSlice {
-		fmt.Println(x)
+	fmt.Println("Variables:")
+	for _, varVal := range variables {
+		fmt.Println(varVal)
+	}
+
+	fmt.Println("Stringvariables:")
+	for _, stringvarVal := range stringvariables {
+		fmt.Println(stringvarVal)
 	}
 }
