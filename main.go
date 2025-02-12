@@ -28,6 +28,10 @@ func (v Variable) getType() string {
 	return v.Type
 }
 
+func (v Variable) print() string {
+	return v.getName() + ": " + v.getType()
+}
+
 func collectVariables(filePath string) (map[Variable]bool, error) {
 	if filePath == "" {
 		return nil, errors.New("file path is empty")
@@ -91,7 +95,7 @@ func main() {
 	}
 
 	for x := range varMap {
-		fmt.Println(x.getName(), x.getType())
+		fmt.Println(x.print())
 	}
 
 	varSlice, stringvarSlice, err := separateVariables(varMap)
