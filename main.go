@@ -33,6 +33,39 @@ func (v Variable) convert() string {
 	return match[1]
 }
 
+func collectVariables(filePath string) ([]Variable, error) {
+	if filePath == "" {
+		return nil, errors.New("error: file path is empty! Aborting")
+	}
+
+	file, err := os.Open(filePath)
+
+	if err != nil {
+		return nil, errors.New("error: %w" + err.Error())
+	}
+
+	variables := []Variable{}
+	scanner := bufio.NewScanner(file)
+
+	for scanner.Scan() {
+		line := scanner.Text()
+		matches := regexp.MustCompile(Pattern).FindAllStringSubmatch(line, -1)
+		for _, match := range matches {
+			if len(match) > 1 {
+				var variable Variable
+				if strings.Contains(match[0], "$") {
+					variable = Variable{Name: match[0], Type: typeStringVar}
+				} else {
+					variable = Variable{Name: match[0], Type: typeVar}
+				}
+				variables = append(variables, variable)
+			}
+		}
+	}
+
+	return variables, nil
+}
+
 // cleanSlice removes duplicate variable names from the input slice by extracting
 // the "real" variable name using convertVariable and returns a slice of unique
 // variable names.
@@ -82,32 +115,6 @@ func createSlices(varSlice []string) ([]string, []string, error) {
 	}
 
 	return cleanSlice(varlist), cleanSlice(stringvarlist), nil
-}
-
-// readFile takes a file path and reads the file line by line. It uses a regular expression to extract
-// all the strings that contain <L.L.> or <L.$.> and <S.L.> or <S.$.> and returns them in a slice. If the function encounters
-// an error while reading the file, it will return an empty slice and an error.
-//
-//go:deprecated
-func readFile(filePath string) ([]string, error) {
-	file, err := os.Open(filePath)
-	if err != nil {
-		return nil, errors.New("something went wrong")
-	}
-	variables := []string{}
-	scanner := bufio.NewScanner(file)
-
-	for scanner.Scan() {
-		line := scanner.Text()
-		matches := regexp.MustCompile(getPattern()).FindAllStringSubmatch(line, -1)
-		for _, match := range matches {
-			if len(match) > 1 {
-				variables = append(variables, match[0])
-			}
-		}
-	}
-
-	return variables, nil
 }
 
 func main() {
