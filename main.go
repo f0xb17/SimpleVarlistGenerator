@@ -35,13 +35,12 @@ func (v Variable) convert() string {
 
 func collectVariables(filePath string) (map[Variable]bool, error) {
 	if filePath == "" {
-		return nil, errors.New("error: file path is empty! Aborting")
+		return nil, errors.New("file path is empty")
 	}
 
 	file, err := os.Open(filePath)
-
 	if err != nil {
-		return nil, errors.New("error: %w" + err.Error())
+		return nil, err
 	}
 
 	variables := make(map[Variable]bool)
@@ -52,13 +51,13 @@ func collectVariables(filePath string) (map[Variable]bool, error) {
 		matches := regexp.MustCompile(Pattern).FindAllStringSubmatch(line, -1)
 		for _, match := range matches {
 			if len(match) > 1 {
-				var variable Variable
-				if strings.Contains(match[0], "$") {
-					variable = Variable{Name: match[0], Type: typeStringVar}
-				} else {
-					variable = Variable{Name: match[0], Type: typeVar}
+				variable := Variable{
+					Name: match[1],
+					Type: typeVar,
 				}
-				variable = Variable{Name: variable.convert(), Type: variable.getType()}
+				if strings.Contains(match[0], "$") {
+					variable.Type = typeStringVar
+				}
 				variables[variable] = true
 			}
 		}
@@ -67,13 +66,44 @@ func collectVariables(filePath string) (map[Variable]bool, error) {
 	return variables, nil
 }
 
+func separateVariables(varMap map[Variable]bool) ([]Variable, []Variable, error) {
+	if len(varMap) < 1 {
+		return nil, nil, errors.New("map is empty")
+	}
+
+	variables := make([]Variable, 0, len(varMap))
+	stringVariables := make([]Variable, 0, len(varMap))
+
+	for val := range varMap {
+		if val.getType() == "" || (val.getType() != typeVar && val.getType() != typeStringVar) {
+			return nil, nil, fmt.Errorf("unknown or empty type: %s", val.getType())
+		}
+
+		if val.getType() == typeVar {
+			variables = append(variables, val)
+		} else {
+			stringVariables = append(stringVariables, val)
+		}
+	}
+
+	return variables, stringVariables, nil
+}
+
 func main() {
-	slice, err := collectVariables("./D1556.osc")
+	varMap, err := collectVariables("./MAN_SG_Dash.osc")
 	if err != nil {
 		fmt.Println("error: " + err.Error())
 	}
 
-	for x := range slice {
-		fmt.Println(x.getName())
+	for x := range varMap {
+		fmt.Println(x.getName(), x.getType())
 	}
+
+	varSlice, stringvarSlice, err := separateVariables(varMap)
+	if err != nil {
+		fmt.Println("error: " + err.Error())
+	}
+
+	fmt.Println(varSlice)
+	fmt.Println(stringvarSlice)
 }
