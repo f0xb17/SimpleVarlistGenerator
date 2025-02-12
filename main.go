@@ -9,20 +9,35 @@ import (
 	"strings"
 )
 
-func getPattern() string {
-	return `\([LS]\.[L$]\.([a-zA-Z0-9_]+)\)`
+const (
+	typeVar       = "variable"
+	typeStringVar = "stringvariable"
+	Pattern       = `\([LS]\.[L$]\.([a-zA-Z0-9_]+)\)`
+)
+
+type Variable struct {
+	Name string
+	Type string
 }
 
-// convertVariable takes a variable name and returns the part of the name after the <L.L.> or <L.$.> and <S.L.> or <S.$.>.
-// part. It is used to extract the "real" variable name.
-func convertVariable(varName string) string {
-	match := regexp.MustCompile(getPattern()).FindStringSubmatch(varName)
+func (v Variable) getName() string {
+	return v.Name
+}
+
+func (v Variable) getType() string {
+	return v.Type
+}
+
+func (v Variable) convert() string {
+	match := regexp.MustCompile(Pattern).FindStringSubmatch(v.getName())
 	return match[1]
 }
 
 // cleanSlice removes duplicate variable names from the input slice by extracting
 // the "real" variable name using convertVariable and returns a slice of unique
 // variable names.
+//
+//go:deprecated
 func cleanSlice(varSlice []string) []string {
 	cleaned := make(map[string]bool)
 	cleanedSlice := []string{}
@@ -43,6 +58,8 @@ func cleanSlice(varSlice []string) []string {
 // all the strings that contained <L.$.> and <S.$.> (Stringvars) and the second slice contains all the strings that
 // contained <L.L.> and <S.L.> (Vars). The function returns the two slices as well as an error if the input slice
 // is empty or the string contains no letters.
+//
+//go:deprecated
 func createSlices(varSlice []string) ([]string, []string, error) {
 	stringvarlist := []string{}
 	varlist := []string{}
@@ -70,6 +87,8 @@ func createSlices(varSlice []string) ([]string, []string, error) {
 // readFile takes a file path and reads the file line by line. It uses a regular expression to extract
 // all the strings that contain <L.L.> or <L.$.> and <S.L.> or <S.$.> and returns them in a slice. If the function encounters
 // an error while reading the file, it will return an empty slice and an error.
+//
+//go:deprecated
 func readFile(filePath string) ([]string, error) {
 	file, err := os.Open(filePath)
 	if err != nil {
