@@ -33,7 +33,7 @@ func (v Variable) convert() string {
 	return match[1]
 }
 
-func collectVariables(filePath string) ([]Variable, error) {
+func collectVariables(filePath string) (map[Variable]bool, error) {
 	if filePath == "" {
 		return nil, errors.New("error: file path is empty! Aborting")
 	}
@@ -44,7 +44,7 @@ func collectVariables(filePath string) ([]Variable, error) {
 		return nil, errors.New("error: %w" + err.Error())
 	}
 
-	variables := []Variable{}
+	variables := make(map[Variable]bool)
 	scanner := bufio.NewScanner(file)
 
 	for scanner.Scan() {
@@ -58,7 +58,8 @@ func collectVariables(filePath string) ([]Variable, error) {
 				} else {
 					variable = Variable{Name: match[0], Type: typeVar}
 				}
-				variables = append(variables, variable)
+				variable = Variable{Name: variable.convert(), Type: variable.getType()}
+				variables[variable] = true
 			}
 		}
 	}
@@ -66,77 +67,13 @@ func collectVariables(filePath string) ([]Variable, error) {
 	return variables, nil
 }
 
-// cleanSlice removes duplicate variable names from the input slice by extracting
-// the "real" variable name using convertVariable and returns a slice of unique
-// variable names.
-//
-//go:deprecated
-func cleanSlice(varSlice []string) []string {
-	cleaned := make(map[string]bool)
-	cleanedSlice := []string{}
-
-	for _, v := range varSlice {
-		varName := convertVariable(v)
-		cleaned[varName] = true
-	}
-
-	for v := range cleaned {
-		cleanedSlice = append(cleanedSlice, v)
-	}
-
-	return cleanedSlice
-}
-
-// createSlices takes a slice of strings and splits it into two slices. The first slice contains
-// all the strings that contained <L.$.> and <S.$.> (Stringvars) and the second slice contains all the strings that
-// contained <L.L.> and <S.L.> (Vars). The function returns the two slices as well as an error if the input slice
-// is empty or the string contains no letters.
-//
-//go:deprecated
-func createSlices(varSlice []string) ([]string, []string, error) {
-	stringvarlist := []string{}
-	varlist := []string{}
-
-	if len(varSlice) == 0 {
-		return nil, nil, errors.New("error while creating slices. input slice was empty")
-	}
-
-	for _, v := range varSlice {
-		if v == "" {
-			return nil, nil, errors.New("string contains no letters. Is it empty")
-		}
-
-		if strings.Contains(v, "$") {
-			stringvarlist = append(stringvarlist, v)
-		} else {
-			varlist = append(varlist, v)
-		}
-
-	}
-
-	return cleanSlice(varlist), cleanSlice(stringvarlist), nil
-}
-
 func main() {
-	slice, err := readFile("./MAN_SG_Dash.osc")
-
+	slice, err := collectVariables("./D1556.osc")
 	if err != nil {
-		fmt.Println(err)
+		fmt.Println("error: " + err.Error())
 	}
 
-	variables, stringvariables, err := createSlices(slice)
-
-	if err != nil {
-		fmt.Println(err)
-	}
-
-	fmt.Println("Variables:")
-	for _, varVal := range variables {
-		fmt.Println(varVal)
-	}
-
-	fmt.Println("Stringvariables:")
-	for _, stringvarVal := range stringvariables {
-		fmt.Println(stringvarVal)
+	for x := range slice {
+		fmt.Println(x.getName())
 	}
 }
