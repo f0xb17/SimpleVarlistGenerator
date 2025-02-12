@@ -28,11 +28,6 @@ func (v Variable) getType() string {
 	return v.Type
 }
 
-func (v Variable) convert() string {
-	match := regexp.MustCompile(Pattern).FindStringSubmatch(v.getName())
-	return match[1]
-}
-
 func collectVariables(filePath string) (map[Variable]bool, error) {
 	if filePath == "" {
 		return nil, errors.New("file path is empty")
