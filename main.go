@@ -15,6 +15,8 @@ const (
 	Pattern       = `\([LS]\.[L$]\.([a-zA-Z0-9_]+)\)`
 )
 
+var storage = make(map[Variable]bool)
+
 type Variable struct {
 	Name string
 	Type string
@@ -33,6 +35,10 @@ func (v Variable) getType() string {
 // print returns a string representation of the Variable in the format "Name: Type"
 func (v Variable) print() string {
 	return v.getName() + ": " + v.getType()
+}
+
+func (v Variable) store() {
+	storage[v] = true
 }
 
 // collectVariables reads a file and collects all variables in the format (L|S)\.(L|\$)([a-zA-Z0-9_]+)
@@ -63,7 +69,12 @@ func collectVariables(filePath string) (map[Variable]bool, error) {
 				if strings.Contains(match[0], "$") {
 					variable.Type = typeStringVar
 				}
-				variables[variable] = true
+				variable.store()
+				for stored := range storage {
+					if stored != variable {
+						variables[variable] = true
+					}
+				}
 			}
 		}
 	}
@@ -114,4 +125,8 @@ func main() {
 
 	fmt.Println(varSlice)
 	fmt.Println(stringvarSlice)
+
+	for stored := range storage {
+		fmt.Println(stored)
+	}
 }
