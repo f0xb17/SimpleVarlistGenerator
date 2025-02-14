@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"os"
+	"path/filepath"
 	"regexp"
 	"strings"
 )
@@ -16,6 +17,7 @@ const (
 )
 
 var storage = make(map[Variable]bool)
+var files = make([]string, 0)
 
 type Variable struct {
 	Name string
@@ -37,6 +39,7 @@ func (v Variable) print() string {
 	return v.getName() + ": " + v.getType()
 }
 
+// store adds the Variable to the storage map, marking it as true.
 func (v Variable) store() {
 	storage[v] = true
 }
@@ -71,7 +74,7 @@ func collectVariables(filePath string) (map[Variable]bool, error) {
 				}
 				variable.store()
 				for stored := range storage {
-					if stored != variable {
+					if variable != stored {
 						variables[variable] = true
 					}
 				}
@@ -85,13 +88,13 @@ func collectVariables(filePath string) (map[Variable]bool, error) {
 // separateVariables takes a map of variables and separates them into two lists.
 // The first list contains all "variable"s and the second list contains all "stringvariable"s.
 // The function returns an error if the map is empty or if there is an unknown or empty type in the map.
-func separateVariables(varMap map[Variable]bool) ([]Variable, []Variable, error) {
+func separateVariables(varMap map[Variable]bool) ([]string, []string, error) {
 	if len(varMap) < 1 {
 		return nil, nil, errors.New("map is empty")
 	}
 
-	variables := make([]Variable, 0, len(varMap))
-	stringVariables := make([]Variable, 0, len(varMap))
+	variables := make([]string, 0, len(varMap))
+	stringVariables := make([]string, 0, len(varMap))
 
 	for val := range varMap {
 		if val.getType() == "" || (val.getType() != typeVar && val.getType() != typeStringVar) {
@@ -99,34 +102,62 @@ func separateVariables(varMap map[Variable]bool) ([]Variable, []Variable, error)
 		}
 
 		if val.getType() == typeVar {
-			variables = append(variables, val)
+			variables = append(variables, val.getName())
 		} else {
-			stringVariables = append(stringVariables, val)
+			stringVariables = append(stringVariables, val.getName())
 		}
 	}
 
 	return variables, stringVariables, nil
 }
 
+// findFiles walks through the directory tree rooted at filePath and appends all paths ending
+// with ".osc" to the global files slice.
+func findFiles(filePath string) {
+	err := filepath.Walk(filePath, func(path string, info os.FileInfo, err error) error {
+		if err != nil {
+			return err
+		}
+		if filepath.Ext(path) == ".osc" {
+			files = append(files, path)
+		}
+		return nil
+	})
+	if err != nil {
+		fmt.Println("error: " + err.Error())
+	}
+}
+
+// write takes two slices of strings and a filename and writes the first slice to
+// fileName+_varlist.txt" and the second slice to fileName+_stringvarlist.txt".
+func write(variables []string, stringVariables []string, fileName string) error {
+	fullPath := filepath.Join("./output/", fileName)
+	if len(variables) > 0 {
+		err := os.WriteFile(fullPath+"_varlist.txt", []byte(strings.Join(variables, "\n")), 0644)
+		if err != nil {
+			return errors.New("error: " + err.Error())
+		}
+	}
+	if len(stringVariables) > 0 {
+		err := os.WriteFile(fullPath+"_stringvarlist.txt", []byte(strings.Join(stringVariables, "\n")), 0644)
+		if err != nil {
+			return errors.New("error: " + err.Error())
+		}
+	}
+	return nil
+}
+
 func main() {
-	varMap, err := collectVariables("./MAN_SG_Dash.osc")
-	if err != nil {
-		fmt.Println("error: " + err.Error())
-	}
-
-	for x := range varMap {
-		fmt.Println(x.print())
-	}
-
-	varSlice, stringvarSlice, err := separateVariables(varMap)
-	if err != nil {
-		fmt.Println("error: " + err.Error())
-	}
-
-	fmt.Println(varSlice)
-	fmt.Println(stringvarSlice)
-
-	for stored := range storage {
-		fmt.Println(stored)
+	findFiles("./test/")
+	for _, file := range files {
+		varMap, err := collectVariables(file)
+		if err != nil {
+			fmt.Println("error: " + err.Error())
+		}
+		varSlice, stringvarSlice, err := separateVariables(varMap)
+		if err != nil {
+			fmt.Println("error: " + err.Error())
+		}
+		write(varSlice, stringvarSlice, filepath.Base(strings.TrimSuffix(file, ".osc")))
 	}
 }
