@@ -73,8 +73,13 @@ func collectVariables(filePath string) (map[Variable]bool, error) {
 					variable.Type = typeStringVar
 				}
 				variable.store()
+				duplicate := false
 				for stored := range storage {
-					if variable != stored {
+					if variable.getName() == stored.getName() {
+						duplicate = true
+						break
+					}
+					if !duplicate {
 						variables[variable] = true
 					}
 				}
