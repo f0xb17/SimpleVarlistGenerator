@@ -58,25 +58,25 @@ func collectVariables(filePath string) (map[Variable]bool, error) {
 
 	variables := make(map[Variable]bool)
 	scanner := bufio.NewScanner(file)
+	variable := Variable{}
 
 	for scanner.Scan() {
 		line := scanner.Text()
 		matches := regexp.MustCompile(Pattern).FindAllStringSubmatch(line, -1)
 		for _, match := range matches {
 			if len(match) > 1 {
-				variable := Variable{
+				variable = Variable{
 					Name: match[1],
 					Type: typeVar,
 				}
 				if strings.Contains(match[0], "$") {
 					variable.Type = typeStringVar
 				}
-				for _, val := range storage {
-					if variable.getName() != val {
-						variable.store()
-					}
-				}
 			}
+		}
+		if variable.getName() != "" {
+			variables[variable] = true
+			variable.store()
 		}
 	}
 	return variables, nil
