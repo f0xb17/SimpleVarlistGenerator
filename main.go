@@ -145,6 +145,20 @@ func write(variables []string, stringVariables []string, fileName string) error 
 }
 
 func main() {
+	/** cmd := exec.Command("python", "./main.py")
+	var out bytes.Buffer
+	var stderr bytes.Buffer
+	cmd.Stdout = &out
+	cmd.Stderr = &stderr // Fehlerausgabe erfassen
+
+	err := cmd.Run()
+	if err != nil {
+		fmt.Println("error: " + err.Error())
+		fmt.Println("Fehlerdetails:", stderr.String())
+		return
+	}
+	selectedFolder := strings.TrimSpace(out.String())
+	fmt.Println("Gewählter Ordner:", selectedFolder) **/
 	findFiles("./test/")
 	for _, file := range files {
 		varMap, err := collectVariables(file)
