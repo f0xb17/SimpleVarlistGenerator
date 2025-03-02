@@ -1,4 +1,6 @@
-use valkyrja::{Exception, throw_value_exception, throw_file_exception, get_exception_message};
+use std::{f32::consts::E, fs};
+
+use valkyrja::{Exception, throw_value_exception, throw_file_exception, get_exception_message, raise_info, raise_error};
 
 #[derive(Copy, Clone)]
 enum VariableType {
@@ -30,7 +32,13 @@ fn collect_variables(file_path: &str) -> Result<Vec<Variable>, Exception> {
         return Err(throw_file_exception("File Path should not be empty!"));
     }
     
-    let collected_variables: Vec<Variable> = Vec::new();
+    let mut collected_variables: Vec<Variable> = Vec::new();
+
+    let mut contents = fs::read_to_string(file_path);
+    match contents {
+        Err(e) => println!("{}", raise_error(&e.to_string())),
+        Ok(value) => collected_variables.push(Variable { name: value, variable_type: VariableType::StringVariable }),
+    }
 
     if collected_variables.len() == 0 {
         return Err(throw_value_exception("Couldn't find any Variable. Maybe the file is wrong?"));
@@ -40,9 +48,13 @@ fn collect_variables(file_path: &str) -> Result<Vec<Variable>, Exception> {
 }
 
 fn main() {
-    let result = collect_variables("./");
+    let result = collect_variables("./src/test.txt");
     match result {
-        Ok(vector) => println!("nothing"),
+        Ok(vector) => {
+            for variable in vector {
+                println!("{}", variable.get_name());
+            }
+        },
         Err(e) => println!("{}", get_exception_message(e))
     }
 }

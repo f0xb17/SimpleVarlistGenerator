@@ -12,4 +12,4 @@ dependencies = [
 [[package]]
 name = "valkyrja"
 version = "0.1.0"
-source = "git+https://github.com/f0xb17/valkyrja.git#aa8f0f98c8b12f759e4af27fc9872d96d6e52c0a"
+source = "git+https://github.com/f0xb17/valkyrja.git#13626a0ae523cb68c14aeea48aed377aad005c84"
