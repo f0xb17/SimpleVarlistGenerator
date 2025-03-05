@@ -1,4 +1,5 @@
 use std::{f32::consts::E, fs};
+use regex::Regex;
 
 use valkyrja::{Exception, throw_value_exception, throw_file_exception, get_exception_message, raise_info, raise_error};
 
@@ -27,6 +28,11 @@ impl Variable {
     }
 }
 
+fn return_variable_name(value: &str) -> String {
+    let re = Regex::new(r"\([LS]\.[L$]\.([a-zA-Z0-9_]+)\)").unwrap();
+    return re.captures(value).unwrap().get(1).unwrap().as_str().to_string();
+}
+
 fn collect_variables(file_path: &str) -> Result<Vec<Variable>, Exception> {
     if file_path == "" {
         return Err(throw_file_exception("File Path should not be empty!"));
@@ -37,9 +43,22 @@ fn collect_variables(file_path: &str) -> Result<Vec<Variable>, Exception> {
     let mut contents = fs::read_to_string(file_path);
     match contents {
         Err(e) => println!("{}", raise_error(&e.to_string())),
-        Ok(value) => collected_variables.push(Variable { name: value, variable_type: VariableType::StringVariable }),
-    }
+        Ok(values) => {
+            for value in values.lines() {
+                match value.find("$") {
+                    Some(_) => collected_variables.push(Variable {
+                        name: return_variable_name(&value),
+                        variable_type: VariableType::StringVariable
+                    }),
+                    None => collected_variables.push(Variable {
+                        name: return_variable_name(&value),
+                        variable_type: VariableType::Variable
+                    }),
+                }
+            }
 
+        }
+    }
     if collected_variables.len() == 0 {
         return Err(throw_value_exception("Couldn't find any Variable. Maybe the file is wrong?"));
     }
