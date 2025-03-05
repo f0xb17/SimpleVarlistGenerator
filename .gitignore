@@ -1,1 +1,5 @@
+# Build Target Folder
 /target
+
+# JetBrains Idea Folder
+/.idea
