@@ -34,6 +34,47 @@ The SimpleVarlistGenerator reads OMSI Script files (.osc), extracts unique varia
    go build -o simplevarlistgenerator .
    ```
 
+## Building for Different Platforms
+
+### Windows (x86_64)
+```sh
+GOOS=windows GOARCH=amd64 go build -o SimpleVarlistGenerator.exe .
+```
+
+### macOS (Intel)
+```sh
+GOOS=darwin GOARCH=amd64 go build -o SimpleVarlistGenerator-macos-amd64 .
+```
+
+### macOS (Apple Silicon)
+```sh
+GOOS=darwin GOARCH=arm64 go build -o SimpleVarlistGenerator-macos-arm64 .
+```
+
+### Linux (x86_64)
+```sh
+GOOS=linux GOARCH=amd64 go build -o SimpleVarlistGenerator-linux .
+```
+
+### Linux (ARM64)
+```sh
+GOOS=linux GOARCH=arm64 go build -o SimpleVarlistGenerator-linux-arm64 .
+```
+
+### All Platforms at Once
+```sh
+# Windows
+GOOS=windows GOARCH=amd64 go build -o SimpleVarlistGenerator.exe .
+
+# macOS
+GOOS=darwin GOARCH=amd64 go build -o SimpleVarlistGenerator-macos-amd64 .
+GOOS=darwin GOARCH=arm64 go build -o SimpleVarlistGenerator-macos-arm64 .
+
+# Linux
+GOOS=linux GOARCH=amd64 go build -o SimpleVarlistGenerator-linux .
+GOOS=linux GOARCH=arm64 go build -o SimpleVarlistGenerator-linux-arm64 .
+```
+
 ## Usage
 
 ### Command Options
