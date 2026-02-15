@@ -1,3 +1,4 @@
+// Package varlistcreator provides functionality to write variables to a file.
 package varlistcreator
 
 import (
@@ -7,6 +8,9 @@ import (
 	"strings"
 )
 
+// WriteVariables takes a source filename and a slice of variable names,
+// then writes them to a varlist file in a "varlist" directory.
+// The output filename is based on the source filename with "_varlist.txt" suffix.
 func WriteVariables(filename string, variables []string) error {
 	baseName := strings.TrimSuffix(filepath.Base(filename), filepath.Ext(filename))
 	outputFilename := baseName + "_varlist.txt"

@@ -1,3 +1,5 @@
+// SimpleVarlistGenerator is a tool to extract variable names from OSC files
+// and write them to a list file.
 package main
 
 import (
@@ -8,6 +10,7 @@ import (
 	"SimpleVarlistGenerator/varlistcreator"
 )
 
+// main reads an OSC file, extracts variable names, and writes them to a varlist file.
 func main() {
 	if len(os.Args) < 2 {
 		fmt.Println("Usage: go run main.go <file.osc>")

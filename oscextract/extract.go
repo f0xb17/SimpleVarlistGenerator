@@ -1,3 +1,4 @@
+// Package oscextract provides functionality to extract variable names from OSC files.
 package oscextract
 
 import (
@@ -8,11 +9,15 @@ import (
 	"strings"
 )
 
+// Variable represents a variable with a name and type extracted from an OSC file.
 type Variable struct {
 	Name string
 	Type string
 }
 
+// ExtractVariables reads from an io.Reader and extracts unique variable names
+// that match the OSC variable pattern (L.L., S.L., L.$, S.$).
+// It returns a sorted slice of unique variable names or an error.
 func ExtractVariables(r io.Reader) ([]string, error) {
 	re := regexp.MustCompile(`\((L\.L|S\.L|L\.\$|S\.\$)\.([a-zA-Z_][a-zA-Z0-9_]*)\)`)
 
